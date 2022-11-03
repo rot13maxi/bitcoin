@@ -682,6 +682,11 @@ QString NetworkToQString(Network net)
     assert(false);
 }
 
+QString TransportProtocolToQString(TransportProtocolType protocolType)
+{
+    return QString::fromStdString(TransportTypeAsString(protocolType));
+}
+
 QString ConnectionTypeToQString(ConnectionType conn_type, bool prepend_direction)
 {
     QString prefix;

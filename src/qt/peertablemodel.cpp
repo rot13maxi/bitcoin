@@ -90,6 +90,8 @@ QVariant PeerTableModel::data(const QModelIndex& index, int role) const
             return GUIUtil::formatBytes(rec->nodeStats.nRecvBytes);
         case Subversion:
             return QString::fromStdString(rec->nodeStats.cleanSubVer);
+        case TransportProtocolType:
+            return GUIUtil::TransportProtocolToQString(rec->nodeStats.m_transport_type);
         } // no default case, so the compiler can warn about missing cases
         assert(false);
     } else if (role == Qt::TextAlignmentRole) {
@@ -109,6 +111,8 @@ QVariant PeerTableModel::data(const QModelIndex& index, int role) const
             return QVariant(Qt::AlignRight | Qt::AlignVCenter);
         case Subversion:
             return {};
+        case TransportProtocolType:
+            return QVariant(Qt::AlignCenter);
         } // no default case, so the compiler can warn about missing cases
         assert(false);
     } else if (role == StatsRole) {

@@ -55,7 +55,8 @@ public:
         Ping,
         Sent,
         Received,
-        Subversion
+        Subversion,
+        TransportProtocolType
     };
 
     enum {
@@ -109,7 +110,10 @@ private:
         tr("Received"),
         /*: Title of Peers Table column which contains the peer's
             User Agent string. */
-        tr("User Agent")};
+        tr("User Agent"),
+        /*: Title of Peers Table column which contains the peer's
+            Transport Protocol version. */
+        tr("Transport")};
     QTimer *timer;
 };
 

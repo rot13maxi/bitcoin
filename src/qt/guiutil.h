@@ -225,6 +225,9 @@ namespace GUIUtil
     /** Convert enum Network to QString */
     QString NetworkToQString(Network net);
 
+    /** Convert enum TransportProtocolType to QString */
+    QString TransportProtocolToQString(TransportProtocolType protocolType);
+
     /** Convert enum ConnectionType to QString */
     QString ConnectionTypeToQString(ConnectionType conn_type, bool prepend_direction);
 
