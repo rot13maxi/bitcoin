@@ -1817,13 +1817,18 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
             }
             // New opcodes will be listed here. May use a different sigversion to modify existing opcodes.
             if (IsOpSuccess(opcode)) {
-                if (flags & SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS) {
+                if (flags & SCRIPT_VERIFY_DISCOURAGE_OP_SUCCESS && opcode != OP_CAT) {
                     return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_SUCCESS);
                 }
                 if (flags & SCRIPT_VERIFY_DISCOURAGE_TAPSCRIPT_OP_CAT) {
                     return set_error(serror, SCRIPT_ERR_DISCOURAGE_OP_CAT);
                 }
-                return set_success(serror);
+                // OP_CAT used to be an OP_SUCCESS. Once it has been re-activated, it should no longer be treated
+                // that way. NOTE: This check should depend on whatever activation logic is used. Right now it will
+                // never treat OP_CAT as an OP_SUCCESS.
+                if (opcode != OP_CAT) {
+                    return set_success(serror);
+                }
             }
         }
 
