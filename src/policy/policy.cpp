@@ -148,10 +148,10 @@ bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_dat
     }
 
     // only one OP_RETURN txout is permitted
-    if (nDataOut > 1) {
-        reason = "multi-op-return";
-        return false;
-    }
+    //if (nDataOut > 1) {
+    //    reason = "multi-op-return";
+    //    return false;
+    //}
 
     return true;
 }
