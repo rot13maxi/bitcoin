@@ -91,6 +91,15 @@ std::optional<std::string> EntriesAndTxidsDisjoint(const CTxMemPool::setEntries&
 std::optional<std::string> PaysMoreThanConflicts(const CTxMemPool::setEntries& iters_conflicting,
                                                  CFeeRate replacement_feerate, const uint256& txid);
 
+/** Check that the feerate of the replacement transaction(s) is at least 2x
+ * higher than the feerate of each of the transactions in iters_conflicting.
+ * AKA, a replace-by-fee-rate replacement.
+ * @param[in]   iters_conflicting  The set of mempool entries.
+ * @returns error message if fees insufficient, otherwise std::nullopt.
+ */
+std::optional<std::string> IncreasesFeeRate(const CTxMemPool::setEntries& iters_conflicting,
+                                            CFeeRate replacement_feerate, const uint256& txid);
+
 /** The replacement transaction must pay more fees than the original transactions. The additional
  * fees must pay for the replacement's bandwidth at or above the incremental relay feerate.
  * @param[in]   original_fees       Total modified fees of original transaction(s).

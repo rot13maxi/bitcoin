@@ -155,6 +155,27 @@ std::optional<std::string> PaysMoreThanConflicts(const CTxMemPool::setEntries& i
     return std::nullopt;
 }
 
+std::optional<std::string> IncreasesFeeRate(const CTxMemPool::setEntries& iters_conflicting,
+                                            CFeeRate replacement_feerate,
+                                            const uint256& txid)
+{
+    for (const auto& mi : iters_conflicting) {
+        CFeeRate original_feerate(mi->GetFee(), mi->GetTxSize());
+        CFeeRate target_feerate = original_feerate;
+        // FIXME: do a proper multiplication; CFeeRate doesn't yet the
+        // necessary operators to do this easily
+        target_feerate += target_feerate;
+        if (replacement_feerate < target_feerate) {
+            return strprintf("rejecting fee-rate replacement %s; new feerate %s < old feerate %s * 2",
+                             txid.ToString(),
+                             replacement_feerate.ToString(),
+                             original_feerate.ToString());
+        }
+    }
+    return std::nullopt;
+}
+
+
 std::optional<std::string> PaysForRBF(CAmount original_fees,
                                       CAmount replacement_fees,
                                       size_t replacement_vsize,
