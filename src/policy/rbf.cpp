@@ -95,18 +95,34 @@ std::optional<std::string> HasNoNewUnconfirmed(const CTransaction& tx,
     }
 
     for (unsigned int j = 0; j < tx.vin.size(); j++) {
-        // Rule #2: We don't want to accept replacements that require low feerate junk to be
-        // mined first.  Ideally we'd keep track of the ancestor feerates and make the decision
-        // based on that, but for now requiring all new inputs to be confirmed works.
+        // Does this input spend an unconfirmed output?
         //
-        // Note that if you relax this to make RBF a little more useful, this may break the
-        // CalculateMempoolAncestors RBF relaxation which subtracts the conflict count/size from the
-        // descendant limit.
-        if (!parents_of_conflicts.count(tx.vin[j].prevout.hash)) {
-            // Rather than check the UTXO set - potentially expensive - it's cheaper to just check
-            // if the new input refers to a tx that's in the mempool.
-            if (pool.exists(GenTxid::Txid(tx.vin[j].prevout.hash))) {
+        // Rather than check the UTXO set - potentially expensive - it's
+        // cheaper to just check if the input refers to a tx that's in the
+        // mempool.
+        if (pool.exists(GenTxid::Txid(tx.vin[j].prevout.hash))) {
+            // Rule #2: We don't want to accept replacements that require low feerate junk to be
+            // mined first.  Ideally we'd keep track of the ancestor feerates and make the decision
+            // based on that, but for now requiring all new inputs to be confirmed works.
+            //
+            // Note that if you relax this to make RBF a little more useful, this may break the
+            // CalculateMempoolAncestors RBF relaxation which subtracts the conflict count/size from the
+            // descendant limit.
+            if (!parents_of_conflicts.count(tx.vin[j].prevout.hash)) {
                 return strprintf("replacement %s adds unconfirmed input, idx %d",
+                                 tx.GetHash().ToString(), j);
+
+            // Allow a CPFP transaction spending an unconfirmed input to be
+            // replaced. But only if it is the only conflict, and thus all new
+            // inputs are confirmed.
+            //
+            // The effect of this check is to prevent replacements from
+            // reducing the fee-rate of transactions. Rule #6 already prevents
+            // this for replacements spending confirmed inputs. Replacements
+            // involving unconfirmed spends however aren't caught by rule #6,
+            // so this eliminates the other case where this can happen.
+            } else if (iters_conflicting.size() > 1) {
+                return strprintf("replacement %s with unconfirmed input, idx %d, has multiple conflicts",
                                  tx.GetHash().ToString(), j);
             }
         }

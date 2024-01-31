@@ -383,6 +383,10 @@ class ReplaceByFeeTest(BitcoinTestFramework):
             amount_per_output=split_value,
         )["new_utxos"]
 
+        # Mine the split transaction so we're spending confirmed inputs in the
+        # next step.
+        self.generate(self.nodes[0], 1)
+
         # Now spend each of those outputs individually
         for utxo in splitting_tx_utxos:
             self.wallet.send_self_transfer(
