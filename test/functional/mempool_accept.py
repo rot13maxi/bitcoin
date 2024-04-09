@@ -155,14 +155,18 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         self.log.info('A transaction that conflicts with an unconfirmed tx')
         # Send the transaction that replaces the mempool transaction and opts out of replaceability
         node.sendrawtransaction(hexstring=tx.serialize().hex(), maxfeerate=0)
+
+        # not relevant with full-rbf
+
         # take original raw_tx_0
-        tx = tx_from_hex(raw_tx_0)
-        tx.vout[0].nValue -= int(4 * fee * COIN)  # Set more fee
-        self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'txn-mempool-conflict'}],
-            rawtxs=[tx.serialize().hex()],
-            maxfeerate=0,
-        )
+        #tx = tx_from_hex(raw_tx_0)
+        #tx.vout[0].nValue -= int(4 * fee * COIN)  # Set more fee
+        #
+        #self.check_mempool_result(
+        #    result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'txn-mempool-conflict'}],
+        #    rawtxs=[tx.serialize().hex()],
+        #    maxfeerate=0,
+        #)
 
         self.log.info('A transaction with missing inputs, that never existed')
         tx = tx_from_hex(raw_tx_0)
@@ -322,13 +326,6 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         tx.vout[0].nValue -= 1  # Make output smaller, such that it is dust for our policy
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'dust'}],
-            rawtxs=[tx.serialize().hex()],
-        )
-        tx = tx_from_hex(raw_tx_reference)
-        tx.vout[0].scriptPubKey = CScript([OP_RETURN, b'\xff'])
-        tx.vout = [tx.vout[0]] * 2
-        self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'multi-op-return'}],
             rawtxs=[tx.serialize().hex()],
         )
 

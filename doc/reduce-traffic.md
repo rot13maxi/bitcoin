@@ -5,8 +5,10 @@ Some node operators need to deal with bandwidth caps imposed by their ISPs.
 
 By default, Bitcoin Core allows up to 125 connections to different peers, 11 of
 which are outbound. You can therefore, have at most 114 inbound connections.
-Of the 11 outbound peers, there can be 8 full-relay connections, 2
-block-relay-only ones and occasionally 1 short-lived feeler or an extra block-relay-only connection.
+Of the 10 outbound peers, there can be 8 full-relay connections and 2
+block-relay-only ones and occasionally 1 short-lived feller or an extra block-relay-only connection.
+If `-mempoolfullrbf=1`, there are 15 outbound peers,
+of which the additional 4 connections are 4 full-rbf peers.
 
 The default settings can result in relatively significant traffic consumption.
 
@@ -54,3 +56,10 @@ Be reminded of the effects of this setting.
   their transactions.
 - It makes block propagation slower because compact block relay can only be
   used when transaction relay is enabled.
+
+## Turn off full-rbf automatic preferential peering (`-mempoolfullrbf=0`)
+
+Automatic preferential peering with full-rbf peers is currently activated if
+the corresponding setting is turn on. Those 4 full-rbf peers are consuming
+bandwidth to service their block-relay and transaction-relay needs. Note,
+`mempoolfullrbf` is currently turn on by default.

@@ -185,6 +185,7 @@ static std::string serviceFlagToStr(size_t bit)
     case NODE_COMPACT_FILTERS: return "COMPACT_FILTERS";
     case NODE_NETWORK_LIMITED: return "NETWORK_LIMITED";
     case NODE_P2P_V2:          return "P2P_V2";
+    case NODE_FULL_RBF:        return "FULL_RBF";
     // Not using default, so we get warned when a case is missing
     }
 

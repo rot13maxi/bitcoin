@@ -70,6 +70,8 @@ static const unsigned int MAX_PROTOCOL_MESSAGE_LENGTH = 4 * 1000 * 1000;
 static const unsigned int MAX_SUBVERSION_LENGTH = 256;
 /** Maximum number of automatic outgoing nodes over which we'll relay everything (blocks, tx, addrs, etc) */
 static const int MAX_OUTBOUND_FULL_RELAY_CONNECTIONS = 8;
+/** Maximum number of automatic fullrbf peers */
+static const int MAX_FULLRBF_RELAY_CONNECTIONS = 4;
 /** Maximum number of addnode outgoing nodes */
 static const int MAX_ADDNODE_CONNECTIONS = 8;
 /** Maximum number of block-relay-only outgoing connections */
@@ -766,6 +768,7 @@ public:
         switch (m_conn_type) {
             case ConnectionType::OUTBOUND_FULL_RELAY:
             case ConnectionType::BLOCK_RELAY:
+            case ConnectionType::FULL_RBF:
                 return true;
             case ConnectionType::INBOUND:
             case ConnectionType::MANUAL:
@@ -794,6 +797,7 @@ public:
         case ConnectionType::ADDR_FETCH:
                 return false;
         case ConnectionType::OUTBOUND_FULL_RELAY:
+        case ConnectionType::FULL_RBF:
         case ConnectionType::MANUAL:
                 return true;
         } // no default case, so the compiler can warn about missing cases
@@ -817,6 +821,10 @@ public:
         return m_conn_type == ConnectionType::INBOUND;
     }
 
+    bool IsFullRBF() const {
+        return m_conn_type == ConnectionType::FULL_RBF;
+    }
+
     bool ExpectServicesFromConn() const {
         switch (m_conn_type) {
             case ConnectionType::INBOUND:
@@ -826,6 +834,7 @@ public:
             case ConnectionType::OUTBOUND_FULL_RELAY:
             case ConnectionType::BLOCK_RELAY:
             case ConnectionType::ADDR_FETCH:
+            case ConnectionType::FULL_RBF:
                 return true;
         } // no default case, so the compiler can warn about missing cases
 
@@ -1064,6 +1073,8 @@ public:
         std::vector<std::string> m_specified_outgoing;
         std::vector<std::string> m_added_nodes;
         bool m_i2p_accept_incoming;
+        bool m_full_rbf;
+        int m_max_outbound_fullrbf_relay = 0;
     };
 
     void Init(const Options& connOptions) EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex, !m_total_bytes_sent_mutex)
@@ -1074,7 +1085,9 @@ public:
         m_max_automatic_connections = connOptions.m_max_automatic_connections;
         m_max_outbound_full_relay = std::min(MAX_OUTBOUND_FULL_RELAY_CONNECTIONS, m_max_automatic_connections);
         m_max_outbound_block_relay = std::min(MAX_BLOCK_RELAY_ONLY_CONNECTIONS, m_max_automatic_connections - m_max_outbound_full_relay);
-        m_max_automatic_outbound = m_max_outbound_full_relay + m_max_outbound_block_relay + m_max_feeler;
+        m_full_rbf = connOptions.m_full_rbf;
+        m_max_outbound_fullrbf_relay = connOptions.m_max_outbound_fullrbf_relay;
+        m_max_automatic_outbound = m_max_outbound_full_relay + m_max_outbound_block_relay + m_max_feeler + m_max_outbound_fullrbf_relay;
         m_max_inbound = std::max(0, m_max_automatic_connections - m_max_automatic_outbound);
         m_use_addrman_outgoing = connOptions.m_use_addrman_outgoing;
         m_client_interface = connOptions.uiInterface;
@@ -1495,6 +1508,9 @@ private:
     NetEventsInterface* m_msgproc;
     /** Pointer to this node's banman. May be nullptr - check existence before dereferencing. */
     BanMan* m_banman;
+
+    bool m_full_rbf;
+    int m_max_outbound_fullrbf_relay;
 
     /**
      * Addresses that were saved during the previous clean shutdown. We'll
