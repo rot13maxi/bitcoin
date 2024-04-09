@@ -45,7 +45,7 @@ const std::vector<std::string> CONNECTION_TYPE_DOC{
         "manual (added via addnode RPC or -addnode/-connect configuration options)",
         "addr-fetch (short-lived automatic connection for soliciting addresses)",
         "feeler (short-lived automatic connection for testing addresses)",
-        "fullrbf (long-lived automatic connection for full-rbf peers)"
+        "libre (long-lived automatic connection for libre relay peers)"
 };
 
 const std::vector<std::string> TRANSPORT_TYPE_DOC{

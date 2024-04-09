@@ -303,6 +303,7 @@ enum ServiceFlags : uint64_t {
     // BIP process.
 
     NODE_FULL_RBF = (1 << 26),
+    NODE_LIBRE_RELAY = (1 << 29),
 };
 
 /**
@@ -335,6 +336,14 @@ static inline bool MayHaveUsefulAddressDB(ServiceFlags services)
 static inline bool HasFullRBFServiceFlag(ServiceFlags services)
 {
     return (services & NODE_FULL_RBF);
+}
+
+/**
+ * Checks if a peer with the given service flags enables libre relay.
+ */
+static inline bool HasLibreRelayServiceFlag(ServiceFlags services)
+{
+    return (services & NODE_LIBRE_RELAY);
 }
 
 /** A CService with information about it as peer */

@@ -516,8 +516,8 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
             to request addresses from a peer. */
         tr("Outbound Address Fetch: short-lived, for soliciting addresses")},
         /*: Explanatory text for a ling-lived outbound connection that is used
-            to relay transactions to peer accepting replacement without requiring replaceability. */
-        tr("Outbound Full-RBF: long-lived, for connecting with full-rbf peers")};
+            to relay transactions to peer with libre relay standardness policies. */
+        tr("Outbound Libre Relay: long-lived, for connecting with libre relay peers")};
     const QString connection_types_list{"<ul><li>" + Join(CONNECTION_TYPE_DOC, QString("</li><li>")) + "</li></ul>"};
     ui->peerConnectionTypeLabel->setToolTip(ui->peerConnectionTypeLabel->toolTip().arg(connection_types_list));
     const std::vector<QString> TRANSPORT_TYPE_DOC{
